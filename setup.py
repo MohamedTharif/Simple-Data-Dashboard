@@ -24,7 +24,7 @@ def get_requirements(filepath:str)->List[str]:
     return requirements
 
 setup(
-    name='Sample_Data_Dashboard',
+    name='Simple_Data_Dashboard',
     version='0.1',
     author= 'Mohamed Tharif',
     author_email= 'mohammedtharif30@gmail.com',

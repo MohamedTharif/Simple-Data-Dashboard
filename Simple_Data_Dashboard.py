@@ -157,6 +157,8 @@ if __name__ == "__main__":
             
                  
         file_info(df)
+        
+        filter_data(df)
           
                                            
         #calculations only performed with only numerical values
