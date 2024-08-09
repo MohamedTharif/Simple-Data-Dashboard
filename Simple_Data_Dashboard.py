@@ -8,6 +8,14 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
+def set_heading():
+    #set the header    
+    st.title("Simple Data Dashboard For Your Files")
+    
+    st.sidebar.title("Operations")
+
+def set_sidebar():
+    sidebar_value=st.sidebar.selectbox("Information about the Data",["Info","Calculations","Visualize"]) 
 def file_upload():
     try:
         #accepting csv file as input
@@ -17,20 +25,21 @@ def file_upload():
         st.warning("Error While Loading File")
 
 def file_info(df) -> None:
+     
+   
+        #thie first five columns and values were printed
+        st.subheader("Data Preview")
+        st.write(df.head())    
+        #st.write("Types of Data Present In the File",df.dtypes)     
     
-    #thie first five columns and values were printed
-    st.subheader("Data Preview")
-    st.write(df.head())    
-    #st.write("Types of Data Present In the File",df.dtypes)     
-
-    #row size and column size were displayed
-    st.subheader("File Info")
-    
-    #finding size of the File
-    rows=df.shape[0]
-    column=df.shape[1]
-    st.write("Columns Present in the File ", column)
-    st.write("Rows Present in the File ",rows)
+        #row size and column size were displayed
+        st.subheader("File Info")
+        
+        #finding size of the File
+        rows=df.shape[0]
+        column=df.shape[1]
+        st.write("Columns Present in the File ", column)
+        st.write("Rows Present in the File ",rows)
 
 def fill_missing(df) -> pd.DataFrame:
     #filling missing values
@@ -63,6 +72,7 @@ def categorizing_columns(df) -> pd.DataFrame:
     numerical_column = df.select_dtypes(include=['int64' , 'float64'])
     return numerical_column
 
+#calculations has been done 
 def Calculations(df,value,operation) -> float :
     if operation == "MAX":
         return df[value].max()    
@@ -92,51 +102,70 @@ def performing_calculations(df,operating_column) -> None:
         result=Calculations(df,calculating_value,mode_of_operation)
         
         display_result=f"{mode_of_operation} is {result} "
-        st.write(display_result)
+        if st.button("Enter"):
+            st.write(display_result)
     else :
         st.write("No Calculations Can be Done Here")
 
 #plot using matplotlib
 def plot_data(df,columns) -> None:   
      
-    st.write("Visualizing the Data")
+    st.subheader("Visualizing the Data")
+   
     x_column=st.selectbox("Select x-axis Column",columns.columns.tolist())
     y_column=st.selectbox("Select y-axis Column",columns.columns.tolist())
     
-    fig=plt.figure()
+    sort_x=sorted(df[x_column])
+    sort_y=sorted(df[y_column])
+    
+    line_chart=plt.figure()
     #sorting columns for plotting
-    plt.plot(sorted(df[x_column]),sorted(df[y_column]))
+    plt.plot(sort_x,sort_y)
+    
+    bar_chart=plt.figure()
+    plt.bar(sort_x,sort_y)    
+    
+    tab1,tab2=st.tabs(["Line Chart","Bar_chart"])
+       
     #adding button for generating chart
     if st.button("Generate Chart"):
         #adding to the page
-        st.pyplot(fig)
-
-    
+        tab1.subheader("Plotted Line Chart")
+        tab1.pyplot(line_chart) 
+        
+        tab2.subheader("PLotted Bar Chart")
+        tab2.pyplot(bar_chart)
+         
+        
+        
 if __name__ == "__main__":
     
-    #set the header    
-    st.title("Simple Data Dashboard For Your Files")
+   
+    set_heading()
 
+    set_sidebar()
+    
     uploaded_file=file_upload()
 
     if uploaded_file is not None:
         #read through the pandas 
-        df=pd.read_csv(uploaded_file)  
-        
-        #filling null values
-        if df.isnull :
-            df=fill_missing(df)
-        
-        #adding info of data to page 
-        file_info(df)
-                          
-        #calculations only performed with only numerical values
-        #checking what are the columns can be used to calculate
-        operating_column=categorizing_columns(df)
+        df=pd.read_csv(uploaded_file)    
                 
+        #filling null values
+        if df.isnull :           
+            df=fill_missing(df)
+            
+                 
+        file_info(df)
+          
+                                           
+        #calculations only performed with only numerical values
+        #checking what are the columns can be used to calculate             
+        operating_column=categorizing_columns(df)
+      
         #adding to page
         performing_calculations(df,operating_column)
-        
+       
         #plotting the visual in the Page
         plot_data(df,operating_column)      
         
